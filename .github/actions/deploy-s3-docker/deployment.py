@@ -16,7 +16,8 @@ def run():
             s3_client.upload_file(os.path.join(root, file), bucket, file)
 
     website_url = f'http://{bucket}.s3-website.{bucket_region}.amazonaws.com'
-    print(f'"website-url={website_url}" >> $GITHUB_OUTPUT')
+    with open(os.environ['GITHUB_OUTPUT'], 'a') as gh_output:
+        print(f'website-url={website_url}', file=gh_output)
 
 if __name__ == '__main__':
     run()
