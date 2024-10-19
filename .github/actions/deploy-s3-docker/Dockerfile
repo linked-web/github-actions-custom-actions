@@ -1,9 +1,11 @@
 FROM python:3
 
-COPY requirements.txt /requirements.txt
+WORKDIR /app
+
+COPY requirements.txt /app/requirements.txt
 
 RUN pip install -r requirements.txt
 
-COPY deployment.py /deployment.py
+COPY deployment.py /app/deployment.py
 
-CMD ["python", "/deployment.py"]
+CMD ["python", "/app/deployment.py"]
