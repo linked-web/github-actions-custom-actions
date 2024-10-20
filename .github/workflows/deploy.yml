@@ -50,6 +50,11 @@ jobs:
           name: dist-files
           path: dist
   deploy:
+    # need write permissions for id-token when using OpenID Connect
+    # also need read permissions for contents to use the other actions
+    permissions:
+      id-token: write
+      contents: read
     needs: build
     runs-on: ubuntu-latest
     steps:
@@ -62,13 +67,21 @@ jobs:
           path: ./dist
       - name: Output contents
         run: ls
+      # The step below is for using OpenID connect instead of environment variables
+      - name: Get AWS Permissions
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::055523997114:role/GitHubDemo
+          aws-region: us-east-2
       - name: Deploy site
         id: deploy
         # uses: ./.github/actions/deploy-s3-javascript
         uses: ./.github/actions/deploy-s3-docker
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        # Use approach below if not using OpenID Connect (prior step)
+        #
+        # env:
+        #   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        #   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         with:
           bucket: production-venero
           bucket-region: us-east-2
